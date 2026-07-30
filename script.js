@@ -85,80 +85,75 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// ===== VIDEO SHOWCASE: 4 pieces assemble on scroll =====
+// ===== ABOUT VIDEO: 4 horizontal strips assemble quickly, react to mouse =====
 (function () {
-    const section = document.querySelector('.showcase');
-    const video = document.getElementById('showcaseVideo');
-    const caption = document.getElementById('showcaseCaption');
-    const pieces = Array.from(document.querySelectorAll('.showcase-piece'));
-    if (!section || !video || pieces.length !== 4) return;
+    const stage = document.getElementById('videoStage');
+    const video = document.getElementById('stageVideo');
+    const strips = Array.from(document.querySelectorAll('.video-strip'));
+    if (!stage || !video || strips.length !== 4) return;
 
-    const ctxs = pieces.map(c => c.getContext('2d'));
-    // scattered start offsets per quadrant: [x%, y%, rotation deg]
-    const scatter = [
-        [-70, -34, -10],
-        [70, -26, 8],
-        [-64, 30, 7],
-        [72, 38, -9]
-    ];
+    const ctxs = strips.map(c => c.getContext('2d'));
+    // strips 0 & 2 come from the left, 1 & 3 from the right
+    const dirs = [-1, 1, -1, 1];
+    let assembly = 0;      // 0 scattered -> 1 assembled
+    let target = 0;
+    let mouseX = 0;        // -1..1 relative to stage center
     let active = false;
-    let progress = 0;
 
     function sizeCanvases() {
         if (!video.videoWidth) return;
-        const w = Math.floor(video.videoWidth / 2);
-        const h = Math.floor(video.videoHeight / 2);
-        pieces.forEach(c => { if (c.width !== w) { c.width = w; c.height = h; } });
+        const w = video.videoWidth;
+        const h = Math.floor(video.videoHeight / 4);
+        strips.forEach(c => { if (c.width !== w) { c.width = w; c.height = h; } });
     }
 
-    function draw() {
+    function render() {
         if (!active) return;
         sizeCanvases();
+        // quick ease toward target assembly
+        assembly += (target - assembly) * 0.08;
+        const spread = 1 - assembly;
+        strips.forEach((c, i) => {
+            const sx = dirs[i] * (110 * spread + mouseX * 6 * dirs[i] * assembly);
+            c.style.transform = `translateX(${sx}%) translateX(${mouseX * 10 * dirs[i] * (1 - assembly)}px)`;
+            c.style.opacity = Math.min(1, 0.25 + assembly * 0.9);
+        });
         if (video.readyState >= 2 && video.videoWidth) {
-            const w = video.videoWidth / 2;
-            const h = video.videoHeight / 2;
+            const w = video.videoWidth;
+            const h = video.videoHeight / 4;
             ctxs.forEach((ctx, i) => {
-                const sx = (i % 2) * w;
-                const sy = i > 1 ? h : 0;
-                ctx.drawImage(video, sx, sy, w, h, 0, 0, pieces[i].width, pieces[i].height);
+                ctx.drawImage(video, 0, i * h, w, h, 0, 0, strips[i].width, strips[i].height);
             });
         }
-        requestAnimationFrame(draw);
+        requestAnimationFrame(render);
     }
 
-    const easeOut = t => 1 - Math.pow(1 - t, 3);
-
-    function updateProgress() {
-        const rect = section.getBoundingClientRect();
-        const range = rect.height - window.innerHeight;
-        progress = Math.min(Math.max(-rect.top / range, 0), 1);
-        const e = easeOut(progress);
-        pieces.forEach((c, i) => {
-            const [dx, dy, rot] = scatter[i];
-            c.style.transform = `translate(${dx * (1 - e)}%, ${dy * (1 - e)}%) rotate(${rot * (1 - e)}deg)`;
-        });
-        caption.classList.toggle('visible-caption', progress > 0.85);
-    }
-
-    const sectionWatch = new IntersectionObserver(entries => {
+    // Assemble as soon as the stage is decently visible
+    const stageWatch = new IntersectionObserver(entries => {
         entries.forEach(entry => {
+            if (entry.intersectionRatio > 0.35) target = 1;
             active = entry.isIntersecting;
             if (active) {
                 video.play().catch(() => {});
-                requestAnimationFrame(draw);
+                requestAnimationFrame(render);
             } else {
                 video.pause();
             }
         });
-    }, { rootMargin: '100px' });
-    sectionWatch.observe(section);
+    }, { threshold: [0, 0.35] });
+    stageWatch.observe(stage);
 
     if (!reducedMotion) {
-        window.addEventListener('scroll', updateProgress, { passive: true });
-        updateProgress();
+        // mouse movement accelerates/finishes the assembly and adds a subtle slide
+        window.addEventListener('mousemove', e => {
+            const rect = stage.getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+            const cx = rect.left + rect.width / 2;
+            mouseX = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth / 2)));
+            if (target === 1) assembly += (1 - assembly) * 0.12;
+        }, { passive: true });
     } else {
-        pieces.forEach(c => { c.style.transform = 'none'; });
-        caption.classList.add('visible-caption');
+        target = 1; assembly = 1; mouseX = 0;
     }
 })();
 
