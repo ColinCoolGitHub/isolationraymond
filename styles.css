@@ -705,6 +705,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     font-family: var(--font-display);
     font-size: 1.45rem;
     font-weight: 700;
+    color: var(--light-on-dark);
 }
 
 .project-info p {

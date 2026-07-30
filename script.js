@@ -99,7 +99,6 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     const speeds = [0.030, 0.022, 0.016, 0.012];
     const parts = [0, 0, 0, 0]; // per-strip assembly 0 -> 1
     let target = 0;
-    let mouseX = 0;        // -1..1 relative to stage center
     let active = false;
 
     function sizeCanvases() {
@@ -115,9 +114,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         strips.forEach((c, i) => {
             parts[i] += (target - parts[i]) * speeds[i];
             const p = parts[i];
-            const spread = 1 - p;
-            const sx = dirs[i] * (110 * spread + mouseX * 6 * dirs[i] * p);
-            c.style.transform = `translateX(${sx}%) translateX(${mouseX * 10 * dirs[i] * spread}px)`;
+            c.style.transform = `translateX(${dirs[i] * 110 * (1 - p)}%)`;
             c.style.opacity = Math.min(1, 0.25 + p * 0.9);
         });
         if (video.readyState >= 2 && video.videoWidth) {
@@ -145,38 +142,8 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     }, { threshold: [0, 0.35] });
     stageWatch.observe(stage);
 
-    if (!reducedMotion) {
-        // mouse movement gently nudges the assembly along and adds a subtle slide
-        window.addEventListener('mousemove', e => {
-            const rect = stage.getBoundingClientRect();
-            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-            const cx = rect.left + rect.width / 2;
-            mouseX = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth / 2)));
-            if (target === 1) parts.forEach((p, i) => { parts[i] += (1 - p) * 0.008; });
-        }, { passive: true });
-
-        // on touch devices, scrolling drives the same subtle slide
-        let lastY = window.scrollY;
-        let decayTimer = null;
-        window.addEventListener('scroll', () => {
-            const rect = stage.getBoundingClientRect();
-            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-            const delta = window.scrollY - lastY;
-            lastY = window.scrollY;
-            mouseX = Math.max(-1, Math.min(1, mouseX + delta / 60));
-            if (target === 1) parts.forEach((p, i) => { parts[i] += (1 - p) * 0.006; });
-            clearTimeout(decayTimer);
-            decayTimer = setTimeout(() => {
-                const settle = () => {
-                    mouseX *= 0.9;
-                    if (Math.abs(mouseX) > 0.01) requestAnimationFrame(settle);
-                    else mouseX = 0;
-                };
-                settle();
-            }, 120);
-        }, { passive: true });
-    } else {
-        target = 1; parts.fill(1); mouseX = 0;
+    if (reducedMotion) {
+        target = 1; parts.fill(1);
     }
 })();
 
