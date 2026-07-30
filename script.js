@@ -85,6 +85,83 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+// ===== VIDEO SHOWCASE: 4 pieces assemble on scroll =====
+(function () {
+    const section = document.querySelector('.showcase');
+    const video = document.getElementById('showcaseVideo');
+    const caption = document.getElementById('showcaseCaption');
+    const pieces = Array.from(document.querySelectorAll('.showcase-piece'));
+    if (!section || !video || pieces.length !== 4) return;
+
+    const ctxs = pieces.map(c => c.getContext('2d'));
+    // scattered start offsets per quadrant: [x%, y%, rotation deg]
+    const scatter = [
+        [-70, -34, -10],
+        [70, -26, 8],
+        [-64, 30, 7],
+        [72, 38, -9]
+    ];
+    let active = false;
+    let progress = 0;
+
+    function sizeCanvases() {
+        if (!video.videoWidth) return;
+        const w = Math.floor(video.videoWidth / 2);
+        const h = Math.floor(video.videoHeight / 2);
+        pieces.forEach(c => { if (c.width !== w) { c.width = w; c.height = h; } });
+    }
+
+    function draw() {
+        if (!active) return;
+        sizeCanvases();
+        if (video.readyState >= 2 && video.videoWidth) {
+            const w = video.videoWidth / 2;
+            const h = video.videoHeight / 2;
+            ctxs.forEach((ctx, i) => {
+                const sx = (i % 2) * w;
+                const sy = i > 1 ? h : 0;
+                ctx.drawImage(video, sx, sy, w, h, 0, 0, pieces[i].width, pieces[i].height);
+            });
+        }
+        requestAnimationFrame(draw);
+    }
+
+    const easeOut = t => 1 - Math.pow(1 - t, 3);
+
+    function updateProgress() {
+        const rect = section.getBoundingClientRect();
+        const range = rect.height - window.innerHeight;
+        progress = Math.min(Math.max(-rect.top / range, 0), 1);
+        const e = easeOut(progress);
+        pieces.forEach((c, i) => {
+            const [dx, dy, rot] = scatter[i];
+            c.style.transform = `translate(${dx * (1 - e)}%, ${dy * (1 - e)}%) rotate(${rot * (1 - e)}deg)`;
+        });
+        caption.classList.toggle('visible-caption', progress > 0.85);
+    }
+
+    const sectionWatch = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            active = entry.isIntersecting;
+            if (active) {
+                video.play().catch(() => {});
+                requestAnimationFrame(draw);
+            } else {
+                video.pause();
+            }
+        });
+    }, { rootMargin: '100px' });
+    sectionWatch.observe(section);
+
+    if (!reducedMotion) {
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        updateProgress();
+    } else {
+        pieces.forEach(c => { c.style.transform = 'none'; });
+        caption.classList.add('visible-caption');
+    }
+})();
+
 // ===== PROJECT GALLERY =====
 const projectData = {
     saintbruno: {

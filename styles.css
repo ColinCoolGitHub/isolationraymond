@@ -481,22 +481,68 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .about-left { position: sticky; top: 110px; }
 
-.about-left .section-title { margin-bottom: 32px; }
+.about-left .section-title { margin-bottom: 0; }
 
-.about-video {
-    max-width: 340px;
-    border-radius: 10px;
+/* ===== Video Showcase (4-piece scroll assembly) ===== */
+.showcase {
+    position: relative;
+    height: 240vh;
+    background: var(--dark);
+}
+
+.showcase-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
     overflow: hidden;
-    border: 1px solid var(--line);
-    box-shadow: 0 24px 50px rgba(16, 22, 28, 0.15);
 }
 
-.about-video video {
-    display: block;
-    width: 100%;
-    aspect-ratio: 9 / 16;
-    object-fit: cover;
+/* hidden decode source for the canvases */
+#showcaseVideo {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    opacity: 0.01;
+    pointer-events: none;
 }
+
+.showcase-stage {
+    position: relative;
+    height: min(74vh, 140vw);
+    aspect-ratio: 9 / 16;
+}
+
+.showcase-piece {
+    position: absolute;
+    width: 50.5%;
+    height: 50.5%;
+    border-radius: 6px;
+    will-change: transform;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.showcase-piece[data-piece="0"] { top: 0; left: 0; }
+.showcase-piece[data-piece="1"] { top: 0; right: 0; }
+.showcase-piece[data-piece="2"] { bottom: 0; left: 0; }
+.showcase-piece[data-piece="3"] { bottom: 0; right: 0; }
+
+.showcase-caption {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-on-dark);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease);
+}
+
+.showcase-caption.visible-caption { opacity: 1; }
 
 .about-body p {
     color: var(--muted);
@@ -903,8 +949,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
     .about-left { position: static; }
 
-    .about-video { max-width: 300px; margin-inline: auto; }
-
     .hero-strip {
         grid-template-columns: repeat(2, 1fr);
         gap: 24px;
@@ -946,5 +990,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; filter: none; transition: none; }
     .hero-media img { animation: none; transform: none; filter: none; }
+    .showcase { height: auto; padding: 90px 0; }
+    .showcase-sticky { position: static; height: auto; }
     html { scroll-behavior: auto; }
 }

@@ -140,12 +140,6 @@
             <div class="about-grid">
                 <div class="about-left">
                     <h2 class="section-title reveal" data-en="Insulation specialists, <em>site-proven.</em>" data-fr="Spécialistes de l'isolation, <em>éprouvés sur le chantier.</em>">Spécialistes de l'isolation, <em>éprouvés sur le chantier.</em></h2>
-                    <div class="about-video reveal">
-                        <video autoplay muted loop playsinline aria-label="Notre équipe à l'œuvre sur un chantier d'isolation">
-                            <source src="introVideo_web.webm" type="video/webm">
-                            <source src="introVideo_web.mp4" type="video/mp4">
-                        </video>
-                    </div>
                 </div>
                 <div class="about-body">
                     <p class="reveal" data-en="Based in Saint-Eustache, Isolations J. Raymond specializes in thermal and acoustic insulation for residential and commercial projects. Specialists in mineral wool batt installation, our teams are recognized for their impeccable work and meticulous attention to detail, on every job site." data-fr="Établie à Saint-Eustache, Isolations J. Raymond se spécialise en isolation thermique et acoustique pour les projets résidentiels et commerciaux. Spécialistes de l'installation de laine minérale en natte, nos équipes sont reconnues pour leur travail impeccable et leur souci du détail, sur chaque chantier.">Établie à Saint-Eustache, Isolations J. Raymond se spécialise en isolation thermique et acoustique pour les projets résidentiels et commerciaux. Spécialistes de l'installation de laine minérale en natte, nos équipes sont reconnues pour leur travail impeccable et leur souci du détail, sur chaque chantier.</p>
@@ -159,6 +153,23 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Video Showcase: 4 pieces assemble on scroll -->
+    <section class="showcase" id="showcase" aria-label="Notre équipe à l'œuvre sur un chantier d'isolation">
+        <div class="showcase-sticky">
+            <video id="showcaseVideo" muted loop playsinline autoplay preload="auto" crossorigin="anonymous">
+                <source src="introVideo_web.webm" type="video/webm">
+                <source src="introVideo_web.mp4" type="video/mp4">
+            </video>
+            <div class="showcase-stage" id="showcaseStage">
+                <canvas class="showcase-piece" data-piece="0"></canvas>
+                <canvas class="showcase-piece" data-piece="1"></canvas>
+                <canvas class="showcase-piece" data-piece="2"></canvas>
+                <canvas class="showcase-piece" data-piece="3"></canvas>
+            </div>
+            <p class="showcase-caption" id="showcaseCaption" data-en="Our team at work" data-fr="Notre équipe à l'œuvre">Notre équipe à l'œuvre</p>
         </div>
     </section>
 
