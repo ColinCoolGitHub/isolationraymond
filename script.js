@@ -93,13 +93,21 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     if (!stage || !video || strips.length !== 4) return;
 
     const ctxs = strips.map(c => c.getContext('2d'));
-    // strips 0 & 2 come from the left, 1 & 3 from the right
-    const dirs = [-1, 1, -1, 1];
-    // each strip glides in at its own pace, one after the other
-    const speeds = [0.030, 0.022, 0.016, 0.012];
+    // strips 0 & 2 come from the left, 1 & 3 from the right (flipped when entering from below)
+    const baseDirs = [-1, 1, -1, 1];
+    const baseSpeeds = [0.030, 0.022, 0.016, 0.012];
+    let dirs = baseDirs.slice();
+    let speeds = baseSpeeds.slice();
     const parts = [0, 0, 0, 0]; // per-strip assembly 0 -> 1
     let target = 0;
     let active = false;
+    let lastY = window.scrollY;
+    let scrollingDown = true;
+
+    window.addEventListener('scroll', () => {
+        scrollingDown = window.scrollY >= lastY;
+        lastY = window.scrollY;
+    }, { passive: true });
 
     function sizeCanvases() {
         if (!video.videoWidth) return;
@@ -127,10 +135,25 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         requestAnimationFrame(render);
     }
 
-    // Assemble as soon as the stage is decently visible
+    // Replay on every entry: normal when scrolling down, mirrored when coming back up
     const stageWatch = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-            if (entry.intersectionRatio > 0.35) target = 1;
+            if (entry.intersectionRatio > 0.35 && target === 0) {
+                if (reducedMotion || scrollingDown) {
+                    dirs = baseDirs.slice();
+                    speeds = baseSpeeds.slice();        // top strip first
+                } else {
+                    dirs = baseDirs.map(d => -d);
+                    speeds = baseSpeeds.slice().reverse(); // bottom strip first
+                }
+                target = 1;
+                if (reducedMotion) parts.fill(1);
+            }
+            if (!entry.isIntersecting && target === 1 && !reducedMotion) {
+                // reset offscreen so the animation replays next time
+                target = 0;
+                parts.fill(0);
+            }
             active = entry.isIntersecting;
             if (active) {
                 video.play().catch(() => {});
