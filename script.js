@@ -154,6 +154,27 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
             mouseX = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth / 2)));
             if (target === 1) parts.forEach((p, i) => { parts[i] += (1 - p) * 0.008; });
         }, { passive: true });
+
+        // on touch devices, scrolling drives the same subtle slide
+        let lastY = window.scrollY;
+        let decayTimer = null;
+        window.addEventListener('scroll', () => {
+            const rect = stage.getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+            const delta = window.scrollY - lastY;
+            lastY = window.scrollY;
+            mouseX = Math.max(-1, Math.min(1, mouseX + delta / 60));
+            if (target === 1) parts.forEach((p, i) => { parts[i] += (1 - p) * 0.006; });
+            clearTimeout(decayTimer);
+            decayTimer = setTimeout(() => {
+                const settle = () => {
+                    mouseX *= 0.9;
+                    if (Math.abs(mouseX) > 0.01) requestAnimationFrame(settle);
+                    else mouseX = 0;
+                };
+                settle();
+            }, 120);
+        }, { passive: true });
     } else {
         target = 1; parts.fill(1); mouseX = 0;
     }
