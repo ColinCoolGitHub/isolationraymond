@@ -33,6 +33,29 @@ window.addEventListener('scroll', () => {
     header.classList.toggle('scrolled', window.scrollY > 60);
 }, { passive: true });
 
+// ===== HERO: B&W -> color on scroll + soft parallax =====
+const heroImg = document.querySelector('.hero-media img');
+const heroInner = document.querySelector('.hero-inner');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!reducedMotion && heroImg) {
+    let ticking = false;
+    const updateHero = () => {
+        const y = window.scrollY;
+        const p = Math.min(y / (window.innerHeight * 0.55), 1);
+        heroImg.style.filter = `grayscale(${1 - p})`;
+        if (heroInner && y < window.innerHeight) {
+            heroInner.style.transform = `translateY(${y * 0.18}px)`;
+            heroInner.style.opacity = 1 - (y / window.innerHeight) * 0.6;
+        }
+        ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+        if (!ticking) { requestAnimationFrame(updateHero); ticking = true; }
+    }, { passive: true });
+    updateHero();
+}
+
 // ===== MOBILE MENU =====
 const menuToggle = document.getElementById('menuToggle');
 const mobileMenu = document.getElementById('mobileMenu');

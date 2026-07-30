@@ -40,14 +40,34 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ===== Reveal animation ===== */
 .reveal {
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+    transform: translateY(30px);
+    filter: blur(8px);
+    transition: opacity 1s var(--ease), transform 1s var(--ease), filter 1s var(--ease);
 }
 
 .reveal.visible {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
 }
+
+/* Entrance stagger helpers */
+.d1 { transition-delay: 0.05s; }
+.d2 { transition-delay: 0.18s; }
+.d3 { transition-delay: 0.32s; }
+.d4 { transition-delay: 0.46s; }
+
+/* Grid stagger */
+.service-grid .service-card:nth-child(2), .contact-grid .contact-card:nth-child(2) { transition-delay: 0.1s; }
+.service-grid .service-card:nth-child(3), .contact-grid .contact-card:nth-child(3) { transition-delay: 0.2s; }
+.service-grid .service-card:nth-child(4), .contact-grid .contact-card:nth-child(4) { transition-delay: 0.3s; }
+.service-grid .service-card:nth-child(5) { transition-delay: 0.4s; }
+.service-grid .service-card:nth-child(6) { transition-delay: 0.5s; }
+.projects-grid .project-card:nth-child(2) { transition-delay: 0.12s; }
+.projects-grid .project-card:nth-child(3) { transition-delay: 0.24s; }
+.value-list li:nth-child(2) { transition-delay: 0.08s; }
+.value-list li:nth-child(3) { transition-delay: 0.16s; }
+.value-list li:nth-child(4) { transition-delay: 0.24s; }
 
 /* ===== Buttons ===== */
 .btn {
@@ -63,7 +83,24 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     border-radius: 4px;
     transition: all 0.3s var(--ease);
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 }
+
+/* Shine sweep on hover */
+.btn-solid::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    transition: left 0.6s var(--ease);
+}
+
+.btn-solid:hover::after { left: 130%; }
 
 .btn-lg { padding: 18px 36px; font-size: 1rem; }
 
@@ -100,11 +137,20 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .header.scrolled {
     padding: 10px 0;
-    background: rgba(12, 16, 20, 0.85);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
+
+.header.scrolled .brand-name { color: #10161c; }
+.header.scrolled .nav-link { color: #4b565f; }
+.header.scrolled .nav-link:hover { color: #10161c; }
+.header.scrolled .lang-toggle { color: #4b565f; border-color: rgba(0, 0, 0, 0.15); }
+.header.scrolled .lang-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.header.scrolled .menu-toggle span { background: #10161c; }
+.header.scrolled .brand-logo { border: 1px solid rgba(0, 0, 0, 0.08); }
 
 .header-inner {
     display: flex;
@@ -263,6 +309,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     height: 100%;
     object-fit: cover;
     transform: scale(1.06);
+    filter: grayscale(1);
+    will-change: filter, transform;
     animation: heroZoom 8s var(--ease) forwards;
 }
 
@@ -870,7 +918,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* Motion preferences */
 @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
-    .hero-media img { animation: none; transform: none; }
+    .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+    .hero-media img { animation: none; transform: none; filter: none; }
     html { scroll-behavior: auto; }
 }
