@@ -45,7 +45,6 @@ if (!reducedMotion && heroImg) {
         const p = Math.min(y / (window.innerHeight * 0.55), 1);
         heroImg.style.filter = `grayscale(${1 - p})`;
         if (heroInner && y < window.innerHeight) {
-            heroInner.style.transform = `translateY(${y * 0.18}px)`;
             heroInner.style.opacity = 1 - (y / window.innerHeight) * 0.6;
         }
         ticking = false;
