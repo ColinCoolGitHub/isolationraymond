@@ -161,7 +161,7 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 // ===== PROJECT GALLERY =====
 const projectData = {
     saintbruno: {
-        title: 'Quartier des Promenades — Saint-Bruno',
+        title: 'Quartier des Promenades, Saint-Bruno',
         images: ['projetSaint-bruno.jpg']
     },
     carredelagare: {
@@ -169,7 +169,7 @@ const projectData = {
         images: ['projetCarreDeLaGare.jpg']
     },
     epiphanie: {
-        title: "L'Épiphanie — 32 logements",
+        title: "L'Épiphanie, 32 logements",
         images: ['projetEpiphanie.jpg']
     }
 };
