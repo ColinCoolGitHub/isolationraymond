@@ -95,7 +95,9 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     const ctxs = strips.map(c => c.getContext('2d'));
     // strips 0 & 2 come from the left, 1 & 3 from the right
     const dirs = [-1, 1, -1, 1];
-    let assembly = 0;      // 0 scattered -> 1 assembled
+    // each strip glides in at its own pace, one after the other
+    const speeds = [0.030, 0.022, 0.016, 0.012];
+    const parts = [0, 0, 0, 0]; // per-strip assembly 0 -> 1
     let target = 0;
     let mouseX = 0;        // -1..1 relative to stage center
     let active = false;
@@ -110,13 +112,13 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     function render() {
         if (!active) return;
         sizeCanvases();
-        // quick ease toward target assembly
-        assembly += (target - assembly) * 0.08;
-        const spread = 1 - assembly;
         strips.forEach((c, i) => {
-            const sx = dirs[i] * (110 * spread + mouseX * 6 * dirs[i] * assembly);
-            c.style.transform = `translateX(${sx}%) translateX(${mouseX * 10 * dirs[i] * (1 - assembly)}px)`;
-            c.style.opacity = Math.min(1, 0.25 + assembly * 0.9);
+            parts[i] += (target - parts[i]) * speeds[i];
+            const p = parts[i];
+            const spread = 1 - p;
+            const sx = dirs[i] * (110 * spread + mouseX * 6 * dirs[i] * p);
+            c.style.transform = `translateX(${sx}%) translateX(${mouseX * 10 * dirs[i] * spread}px)`;
+            c.style.opacity = Math.min(1, 0.25 + p * 0.9);
         });
         if (video.readyState >= 2 && video.videoWidth) {
             const w = video.videoWidth;
@@ -144,16 +146,16 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     stageWatch.observe(stage);
 
     if (!reducedMotion) {
-        // mouse movement accelerates/finishes the assembly and adds a subtle slide
+        // mouse movement gently nudges the assembly along and adds a subtle slide
         window.addEventListener('mousemove', e => {
             const rect = stage.getBoundingClientRect();
             if (rect.bottom < 0 || rect.top > window.innerHeight) return;
             const cx = rect.left + rect.width / 2;
             mouseX = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth / 2)));
-            if (target === 1) assembly += (1 - assembly) * 0.12;
+            if (target === 1) parts.forEach((p, i) => { parts[i] += (1 - p) * 0.008; });
         }, { passive: true });
     } else {
-        target = 1; assembly = 1; mouseX = 0;
+        target = 1; parts.fill(1); mouseX = 0;
     }
 })();
 
