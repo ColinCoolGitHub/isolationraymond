@@ -93,21 +93,20 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     if (!stage || !video || strips.length !== 4) return;
 
     const ctxs = strips.map(c => c.getContext('2d'));
-    // strips 0 & 2 come from the left, 1 & 3 from the right (flipped when entering from below)
-    const baseDirs = [-1, 1, -1, 1];
-    const baseSpeeds = [0.030, 0.022, 0.016, 0.012];
-    let dirs = baseDirs.slice();
-    let speeds = baseSpeeds.slice();
-    const parts = [0, 0, 0, 0]; // per-strip assembly 0 -> 1
-    let target = 0;
+    // strips 0 & 2 come from the left, 1 & 3 from the right
+    const dirs = [-1, 1, -1, 1];
+    const stagger = 0.13;       // delay between strips along the scroll range
+    const parts = [0, 0, 0, 0]; // per-strip assembly 0 -> 1, eased toward scroll target
     let active = false;
-    let lastY = window.scrollY;
-    let scrollingDown = true;
 
-    window.addEventListener('scroll', () => {
-        scrollingDown = window.scrollY >= lastY;
-        lastY = window.scrollY;
-    }, { passive: true });
+    const easeInOut = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+    // scroll-scrubbed progress: assembles going down, disassembles going up
+    function scrollProgress() {
+        const rect = stage.getBoundingClientRect();
+        const vh = window.innerHeight;
+        return Math.min(Math.max((vh - rect.top) / (vh * 0.85), 0), 1);
+    }
 
     function sizeCanvases() {
         if (!video.videoWidth) return;
@@ -119,12 +118,17 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     function render() {
         if (!active) return;
         sizeCanvases();
-        strips.forEach((c, i) => {
-            parts[i] += (target - parts[i]) * speeds[i];
-            const p = parts[i];
-            c.style.transform = `translateX(${dirs[i] * 110 * (1 - p)}%)`;
-            c.style.opacity = Math.min(1, 0.25 + p * 0.9);
-        });
+        if (!reducedMotion) {
+            const p = scrollProgress();
+            strips.forEach((c, i) => {
+                // each strip occupies a shifted slice of the global progress
+                const local = Math.min(Math.max((p - i * stagger) / (1 - 3 * stagger), 0), 1);
+                const targetPart = easeInOut(local);
+                parts[i] += (targetPart - parts[i]) * 0.18;
+                c.style.transform = `translateX(${dirs[i] * 110 * (1 - parts[i])}%)`;
+                c.style.opacity = Math.min(1, 0.25 + parts[i] * 0.9);
+            });
+        }
         if (video.readyState >= 2 && video.videoWidth) {
             const w = video.videoWidth;
             const h = video.videoHeight / 4;
@@ -135,25 +139,9 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         requestAnimationFrame(render);
     }
 
-    // Replay on every entry: normal when scrolling down, mirrored when coming back up
+    // video pauses offscreen; rendering loop only runs when visible
     const stageWatch = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-            if (entry.intersectionRatio > 0.35 && target === 0) {
-                if (reducedMotion || scrollingDown) {
-                    dirs = baseDirs.slice();
-                    speeds = baseSpeeds.slice();        // top strip first
-                } else {
-                    dirs = baseDirs.map(d => -d);
-                    speeds = baseSpeeds.slice().reverse(); // bottom strip first
-                }
-                target = 1;
-                if (reducedMotion) parts.fill(1);
-            }
-            if (!entry.isIntersecting && target === 1 && !reducedMotion) {
-                // reset offscreen so the animation replays next time
-                target = 0;
-                parts.fill(0);
-            }
             active = entry.isIntersecting;
             if (active) {
                 video.play().catch(() => {});
@@ -162,11 +150,11 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
                 video.pause();
             }
         });
-    }, { threshold: [0, 0.35] });
+    }, { rootMargin: '80px' });
     stageWatch.observe(stage);
 
     if (reducedMotion) {
-        target = 1; parts.fill(1);
+        strips.forEach(c => { c.style.transform = 'none'; c.style.opacity = 1; });
     }
 })();
 
