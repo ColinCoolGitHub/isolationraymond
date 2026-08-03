@@ -171,6 +171,30 @@ const projectData = {
     epiphanie: {
         title: "L'Épiphanie, 32 logements",
         images: ['projetEpiphanie.jpg']
+    },
+    kanata: {
+        title: 'Résidence Kanata (Ontario)',
+        images: ['maison-kanata-1.jpg', 'maison-kanata-2.jpg', 'maison-kanata-3.jpg', 'maison-kanata-4.jpg', 'maison-kanata-5.jpg']
+    },
+    stadolphe: {
+        title: "Saint-Adolphe-d'Howard, Laurentides",
+        images: ['maison-st-adolphe-1.jpg', 'maison-st-adolphe-2.jpg']
+    },
+    tremblant: {
+        title: 'Résidence Tremblant',
+        images: ['maison-tremblant.jpg']
+    },
+    equinoxjacob: {
+        title: 'Équinox & Le Jacob, Laval',
+        images: ['visuel-le-jacob.jpg', 'visuel-equinox.webp', 'vue-equinox-jacob.jpg']
+    },
+    garage: {
+        title: 'Garage cathédrale',
+        images: ['isolation-cathedrale-garage.jpg']
+    },
+    commercial: {
+        title: 'Projets commerciaux',
+        images: ['travaux-commercial.jpg', 'entrepots-camions.jpg', 'mini-entrepots.jpg']
     }
 };
 
