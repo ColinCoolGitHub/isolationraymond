@@ -194,7 +194,11 @@ const projectData = {
     },
     commercial: {
         title: 'Projets commerciaux',
-        images: ['travaux-commercial.jpg', 'entrepots-camions.jpg', 'mini-entrepots.jpg']
+        images: ['travaux-commercial.jpg', 'mini-entrepots.jpg']
+    },
+    entrepots: {
+        title: 'Entrepôts de camions',
+        images: ['entrepots-camions.jpg']
     }
 };
 
