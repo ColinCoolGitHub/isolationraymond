@@ -1,7 +1,7 @@
-// Pages _redirects cannot do domain-level redirects, so the .ca domain is
-// consolidated onto the .com here instead, to keep search ranking on one host.
-const CANONICAL_HOST = 'isolationsjraymond.com';
-const ALIASES = ['isolationsjraymond.ca', 'www.isolationsjraymond.ca', 'www.isolationsjraymond.com'];
+// Pages _redirects cannot do domain-level redirects, so the alternate domains are
+// consolidated onto the canonical one here, to keep search ranking on one host.
+const CANONICAL_HOST = 'isolationsjraymond.ca';
+const ALIASES = ['isolationsjraymond.com', 'www.isolationsjraymond.com', 'www.isolationsjraymond.ca'];
 
 export async function onRequest(context) {
     const url = new URL(context.request.url);
