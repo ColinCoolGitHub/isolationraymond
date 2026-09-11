@@ -85,77 +85,48 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-// ===== ABOUT VIDEO: 4 horizontal strips assemble quickly, react to mouse =====
+// ===== VIDEOS: load and play only while on screen, and only when the
+// connection and device can afford it. Videos are preload="none" with a
+// poster, so skipping playback downloads nothing beyond the still image. =====
 (function () {
-    const stage = document.getElementById('videoStage');
-    const video = document.getElementById('stageVideo');
-    const strips = Array.from(document.querySelectorAll('.video-strip'));
-    if (!stage || !video || strips.length !== 4) return;
+    const videos = document.querySelectorAll('video.autoplay-inview');
+    if (!videos.length) return;
 
-    const ctxs = strips.map(c => c.getContext('2d'));
-    // strips 0 & 2 come from the left, 1 & 3 from the right
-    const dirs = [-1, 1, -1, 1];
-    const stagger = 0.13;       // delay between strips along the scroll range
-    const parts = [0, 0, 0, 0]; // per-strip assembly 0 -> 1, eased toward scroll target
-    let active = false;
+    const connection = navigator.connection;
+    const constrained = reducedMotion
+        || connection?.saveData === true
+        || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType)
+        || navigator.deviceMemory < 4;
 
-    const easeInOut = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-
-    // scroll-scrubbed progress: assembles going down, disassembles going up
-    function scrollProgress() {
-        const rect = stage.getBoundingClientRect();
-        const vh = window.innerHeight;
-        return Math.min(Math.max((vh - rect.top) / (vh * 0.85), 0), 1);
-    }
-
-    function sizeCanvases() {
-        if (!video.videoWidth) return;
-        const w = video.videoWidth;
-        const h = Math.floor(video.videoHeight / 4);
-        strips.forEach(c => { if (c.width !== w) { c.width = w; c.height = h; } });
-    }
-
-    function render() {
-        if (!active) return;
-        sizeCanvases();
-        if (!reducedMotion) {
-            const p = scrollProgress();
-            strips.forEach((c, i) => {
-                // each strip occupies a shifted slice of the global progress
-                const local = Math.min(Math.max((p - i * stagger) / (1 - 3 * stagger), 0), 1);
-                const targetPart = easeInOut(local);
-                parts[i] += (targetPart - parts[i]) * 0.18;
-                c.style.transform = `translateX(${dirs[i] * 110 * (1 - parts[i])}%)`;
-                c.style.opacity = Math.min(1, 0.25 + parts[i] * 0.9);
-            });
-        }
-        if (video.readyState >= 2 && video.videoWidth) {
-            const w = video.videoWidth;
-            const h = video.videoHeight / 4;
-            ctxs.forEach((ctx, i) => {
-                ctx.drawImage(video, 0, i * h, w, h, 0, 0, strips[i].width, strips[i].height);
-            });
-        }
-        requestAnimationFrame(render);
-    }
-
-    // video pauses offscreen; rendering loop only runs when visible
-    const stageWatch = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            active = entry.isIntersecting;
-            if (active) {
+    if (constrained) {
+        videos.forEach(video => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'video-play';
+            button.innerHTML = '<span class="sr-only" data-fr="Lire la vidéo" data-en="Play video">Lire la vidéo</span>';
+            button.addEventListener('click', () => {
+                video.preload = 'auto';
                 video.play().catch(() => {});
-                requestAnimationFrame(render);
+                button.remove();
+            }, { once: true });
+            video.parentElement.appendChild(button);
+        });
+        return;
+    }
+
+    // Needs to be substantially on screen before it loads, so a stacked mobile
+    // layout plays one clip at a time instead of pulling three at once.
+    const watch = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play().catch(() => {});
             } else {
-                video.pause();
+                entry.target.pause();
             }
         });
-    }, { rootMargin: '80px' });
-    stageWatch.observe(stage);
+    }, { threshold: 0.35 });
 
-    if (reducedMotion) {
-        strips.forEach(c => { c.style.transform = 'none'; c.style.opacity = 1; });
-    }
+    videos.forEach(video => watch.observe(video));
 })();
 
 // ===== PROJECT GALLERY =====
@@ -269,4 +240,54 @@ document.getElementById('lightbox').addEventListener('click', e => {
         const diff = e.changedTouches[0].screenX - touchStartX;
         if (Math.abs(diff) > 50) navigateGallery(diff < 0 ? 1 : -1);
     }, { passive: true });
+})();
+
+// ===== QUOTE FORM =====
+(function () {
+    const form = document.getElementById('quoteForm');
+    const status = document.getElementById('quoteStatus');
+    const submit = document.getElementById('quoteSubmit');
+
+    const messages = {
+        sending: { fr: "Envoi en cours...", en: "Sending..." },
+        ok: { fr: "Merci, votre demande est envoyée. Nous vous revenons rapidement.", en: "Thank you, your request has been sent. We will get back to you shortly." },
+        invalid: { fr: "Veuillez remplir les champs obligatoires.", en: "Please fill in the required fields." },
+        error: { fr: "L'envoi a échoué. Écrivez-nous à j.raymond@ijraymond.com ou appelez au 438 873-9548.", en: "Sending failed. Email us at j.raymond@ijraymond.com or call 438 873-9548." }
+    };
+
+    // data-fr/data-en let the language toggle re-translate the message already on screen
+    function setStatus(key, tone) {
+        status.setAttribute('data-fr', messages[key].fr);
+        status.setAttribute('data-en', messages[key].en);
+        status.textContent = messages[key][currentLang];
+        status.className = `form-status ${tone}`;
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        if (!form.checkValidity()) {
+            setStatus('invalid', 'is-error');
+            form.reportValidity();
+            return;
+        }
+
+        submit.disabled = true;
+        setStatus('sending', '');
+
+        try {
+            const response = await fetch('/api/soumission', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(new FormData(form)))
+            });
+            if (!response.ok) throw new Error(response.status);
+            form.reset();
+            setStatus('ok', 'is-ok');
+        } catch {
+            setStatus('error', 'is-error');
+        } finally {
+            submit.disabled = false;
+        }
+    });
 })();
