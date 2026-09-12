@@ -83,8 +83,13 @@ const header = document.getElementById('header');
 // Basculait des le premier pixel de defilement, bien avant que la page ne
 // commence a blanchir. Le seuil suit maintenant la meme progression, et il est
 // relatif a la fenetre plutot qu'a un nombre de pixels fixe.
+const scrollProgress = document.getElementById('scrollProgress');
+
 window.addEventListener('scroll', () => {
     header.classList.toggle('scrolled', window.scrollY > window.innerHeight * 0.45);
+
+    const travel = document.documentElement.scrollHeight - window.innerHeight;
+    scrollProgress.style.transform = `scaleX(${travel > 0 ? window.scrollY / travel : 0})`;
 }, { passive: true });
 
 // ===== HERO: B&W -> color on scroll + soft parallax =====
@@ -154,6 +159,28 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ===== NAV: highlight the section being read =====
+(function () {
+    const links = [...document.querySelectorAll('.nav-link')];
+    const targets = links
+        .map(link => document.querySelector(link.getAttribute('href')))
+        .filter(Boolean);
+    if (!targets.length) return;
+
+    // Only a narrow band across the middle of the viewport counts as "current",
+    // so the highlight moves once per section instead of flickering at edges.
+    const spy = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            links.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
+            });
+        });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+
+    targets.forEach(target => spy.observe(target));
+})();
 
 // ===== VIDEOS: load and play only while on screen, and only when the
 // connection and device can afford it. Videos are preload="none" with a

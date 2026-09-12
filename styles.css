@@ -136,6 +136,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 /* ===== Header ===== */
+/* Reading progress. Sits above the header so it stays visible once the header
+   turns white, and scales rather than resizing so it never triggers layout. */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 101;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    will-change: transform;
+}
+
 .header {
     position: fixed;
     inset: 0 0 auto 0;
@@ -156,6 +171,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .header.scrolled .brand-name { color: #10161c; }
 .header.scrolled .nav-link { color: #4b565f; }
 .header.scrolled .nav-link:hover { color: #10161c; }
+
+/* Marks the section being read. Repeated for the scrolled header, whose own
+   rule would otherwise win on specificity. */
+.nav-link.active,
+.header.scrolled .nav-link.active { color: var(--accent); }
 .header.scrolled .lang-toggle { color: #4b565f; border-color: rgba(0, 0, 0, 0.15); }
 .header.scrolled .lang-toggle:hover { color: var(--accent); border-color: var(--accent); }
 .header.scrolled .menu-toggle span { background: #10161c; }
@@ -584,6 +604,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 .service-card:hover {
+    /* The project cards lift on hover and these did not, which read as one of
+       the two grids being inert. */
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(16, 22, 28, 0.1);
     border-color: rgba(0, 174, 239, 0.5);
     transform: translateY(-4px);
     box-shadow: 0 18px 40px rgba(16, 22, 28, 0.1);
