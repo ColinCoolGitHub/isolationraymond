@@ -80,21 +80,40 @@ document.querySelectorAll('.mobile-lang').forEach(btn => btn.addEventListener('c
 
 // ===== HEADER SCROLL =====
 const header = document.getElementById('header');
+// Basculait des le premier pixel de defilement, bien avant que la page ne
+// commence a blanchir. Le seuil suit maintenant la meme progression, et il est
+// relatif a la fenetre plutot qu'a un nombre de pixels fixe.
 window.addEventListener('scroll', () => {
-    header.classList.toggle('scrolled', window.scrollY > 60);
+    header.classList.toggle('scrolled', window.scrollY > window.innerHeight * 0.45);
 }, { passive: true });
 
 // ===== HERO: B&W -> color on scroll + soft parallax =====
 const heroImg = document.querySelector('.hero-media img');
 const heroInner = document.querySelector('.hero-inner');
+const heroFade = document.querySelector('.hero-fade');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (!reducedMotion && heroImg) {
     let ticking = false;
+    let lastGrayscale = -1;
+
     const updateHero = () => {
         const y = window.scrollY;
         const p = Math.min(y / (window.innerHeight * 0.55), 1);
-        heroImg.style.filter = `grayscale(${1 - p})`;
+
+        // A filter change forces the whole image to be re-rasterised. Stepping
+        // it means roughly twenty repaints across the scroll instead of one per
+        // frame, which is what was stalling the renderer.
+        const grayscale = Math.round((1 - p) * 20) / 20;
+        if (grayscale !== lastGrayscale) {
+            heroImg.style.filter = `grayscale(${grayscale})`;
+            lastGrayscale = grayscale;
+        }
+
+
+        if (heroFade) {
+            heroFade.style.opacity = Math.min(y / (window.innerHeight * 0.9), 1) * 0.4;
+        }
         if (heroInner && y < window.innerHeight) {
             heroInner.style.opacity = 1 - (y / window.innerHeight) * 0.6;
         }

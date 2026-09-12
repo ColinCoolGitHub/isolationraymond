@@ -332,6 +332,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     to { transform: scale(1); }
 }
 
+.hero-fade {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .hero-scrim {
     position: absolute;
     inset: 0;
@@ -481,6 +489,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ===== About ===== */
 .about {
     border-top: 1px solid var(--line);
+    /* The video column runs taller than the text beside it, so the standard
+       bottom padding stacked on top of that overhang into a long empty stretch. */
+    padding-bottom: 80px;
 }
 
 .about-grid {
@@ -522,9 +533,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     gap: 0 40px;
 }
 
+/* Was a plain list that disappeared under the paragraphs. The accent rule and
+   the larger values give the column something to land on besides prose. */
 .about-facts .fact {
-    padding: 18px 0;
-    border-top: 1px solid var(--line);
+    padding: 16px 0 18px;
+    border-top: 2px solid var(--accent);
 }
 
 .about-facts dt {
@@ -533,19 +546,24 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .about-facts dd {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
 }
 
 /* ===== Services ===== */
 .services {
     background: var(--bg-raise);
-    border-block: 1px solid var(--line);
+    /* The change of background already marks the seam. A hairline on top of it
+       only made the junction read as a hard cut. */
+    border-bottom: 1px solid var(--line);
+    padding-top: 100px;
 }
 
 .service-grid {
@@ -574,6 +592,24 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .service-card.featured {
     border-color: rgba(0, 174, 239, 0.45);
     background: linear-gradient(160deg, rgba(0, 174, 239, 0.07) 0%, var(--bg) 55%);
+}
+
+/* The cards were text only, which made the whole grid read as a wall of
+   paragraphs. One accent mark per card gives each a point of entry. */
+.service-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    margin-bottom: 22px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.service-icon svg {
+    width: 24px;
+    height: 24px;
 }
 
 .service-top {
@@ -925,58 +961,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .lightbox-prev { left: 16px; }
 .lightbox-next { right: 16px; }
 
-/* ===== Notre histoire ===== */
-.story {
-    border-top: 1px solid var(--line);
-}
-
-.story-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 72px;
-    align-items: start;
-}
-
-.story-aside {
-    position: sticky;
-    top: 110px;
-    display: flex;
-    flex-direction: column;
-    padding-top: 18px;
-    border-top: 2px solid var(--accent);
-}
-
-.story-year {
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 6vw, 4.5rem);
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    color: var(--accent);
-}
-
-.story-founder {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin-top: 18px;
-}
-
-.story-role {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-top: 4px;
-}
-
-.story-body .section-title { max-width: 18ch; }
-
-.story-body p {
-    color: var(--muted);
-    font-size: 1.05rem;
-    margin-bottom: 24px;
-    max-width: 62ch;
-}
-
 /* ===== Contact ===== */
 .contact {
     background: var(--bg-raise);
@@ -1239,13 +1223,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     .projects-grid { grid-template-columns: repeat(2, 1fr); }
 
     .ongoing-grid { grid-template-columns: repeat(2, 1fr); }
-
-    .story-grid {
-        grid-template-columns: 1fr;
-        gap: 36px;
-    }
-
-    .story-aside { position: static; }
 
     .contact-layout {
         grid-template-columns: 1fr;
