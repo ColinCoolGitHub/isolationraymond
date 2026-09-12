@@ -305,6 +305,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     flex-direction: column;
     justify-content: flex-end;
     padding-top: 120px;
+    /* The dark block covers the whole viewport so no white edge shows, while
+       this reserve keeps the content where it sat when the hero ended at 92svh. */
+    padding-bottom: 8svh;
     background: var(--dark);
     color: var(--light-on-dark);
 }
