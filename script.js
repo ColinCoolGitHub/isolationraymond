@@ -33,11 +33,13 @@ function renderTurnstile() {
 
     if (turnstileWidgetId !== null) turnstile.remove(turnstileWidgetId);
 
+    // Deliberately left visible. In interaction-only mode the widget stayed
+    // hidden while no token was issued, leaving the visitor told to wait with
+    // nothing to act on.
     turnstileWidgetId = turnstile.render(host, {
         sitekey: '0x4AAAAAAEw2qH30TsJA353V',
         theme: 'light',
-        language: currentLang,
-        appearance: 'interaction-only'
+        language: currentLang
     });
 }
 
