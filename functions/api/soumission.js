@@ -112,6 +112,10 @@ Envoyé depuis le formulaire de isolationsjraymond.ca. Répondre à ce courriel 
     });
 
     if (!sent.ok) {
+        // Surfaces in `wrangler pages deployment tail` and in the dashboard logs.
+        // Without it a refused send leaves no trace anywhere at all.
+        const detail = await sent.text().catch(() => '');
+        console.error(`Resend a refuse l'envoi (${sent.status}) pour ${nom} <${courriel}> : ${detail}`);
         return json({ error: 'send_failed' }, 502);
     }
 
