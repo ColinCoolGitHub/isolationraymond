@@ -33,13 +33,14 @@ function renderTurnstile() {
 
     if (turnstileWidgetId !== null) turnstile.remove(turnstileWidgetId);
 
-    // Deliberately left visible. In interaction-only mode the widget stayed
-    // hidden while no token was issued, leaving the visitor told to wait with
-    // nothing to act on.
+    // interaction-only keeps the challenge invisible unless Cloudflare decides
+    // the visit warrants one. Automated browsers are always challenged, so this
+    // mode can only be confirmed by a real person in a real browser.
     turnstileWidgetId = turnstile.render(host, {
         sitekey: '0x4AAAAAAEw2qH30TsJA353V',
         theme: 'light',
-        language: currentLang
+        language: currentLang,
+        appearance: 'interaction-only'
     });
 }
 
