@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page introuvable | Isolations J. Raymond</title>
+    <!-- Without this file Pages answers 200 with the homepage on every unknown
+         path, which hands search engines an unlimited supply of duplicates. -->
+    <meta name="robots" content="noindex, follow">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100svh;
+            display: grid;
+            place-items: center;
+            padding: 32px;
+            background: #0c1014;
+            color: #f2f5f7;
+            font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+        }
+
+        .logo { height: 44px; margin-bottom: 40px; }
+
+        .code {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: #00aeef;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.9rem, 5vw, 3rem);
+            font-weight: 700;
+            line-height: 1.12;
+            letter-spacing: -.02em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            max-width: 46ch;
+            margin: 0 auto 14px;
+            font-size: 1.02rem;
+            line-height: 1.65;
+            color: rgba(242, 245, 247, .66);
+        }
+
+        p.en { font-size: .92rem; color: rgba(242, 245, 247, .42); }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 34px;
+        }
+
+        a {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: .93rem;
+            font-weight: 600;
+            letter-spacing: .02em;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 2px;
+            transition: background .25s ease, border-color .25s ease, color .25s ease;
+        }
+
+        .primary { background: #00aeef; color: #0c1014; }
+        .primary:hover { background: #33c2f3; }
+
+        .ghost {
+            color: #f2f5f7;
+            border: 1px solid rgba(242, 245, 247, .22);
+        }
+
+        .ghost:hover { border-color: #00aeef; color: #00aeef; }
+    </style>
+</head>
+<body>
+    <main>
+        <img src="logo.png" alt="Isolations J. Raymond inc." class="logo">
+        <div class="code">Erreur 404</div>
+        <h1>Cette page n'existe pas.</h1>
+        <p>Le lien est peut-être désuet ou l'adresse comporte une erreur. Retournez à l'accueil, ou écrivez-nous, nous répondons vite.</p>
+        <p class="en">This page does not exist. Head back to the homepage, or get in touch.</p>
+        <div class="actions">
+            <a href="/" class="primary">Retour à l'accueil</a>
+            <a href="/#contact" class="ghost">Nous joindre</a>
+        </div>
+    </main>
+</body>
+</html>
