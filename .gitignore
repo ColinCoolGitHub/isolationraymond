@@ -421,3 +421,10 @@ FodyWeavers.xsd
 
 # Claude Code local dev config
 .claude/
+
+# Secrets locaux pour wrangler pages dev: ne doivent jamais partir sur GitHub.
+# Le motif *.env herite du gabarit Visual Studio n'attrape pas .env lui-meme.
+.dev.vars
+.dev.vars.*
+.env
+.env.*
