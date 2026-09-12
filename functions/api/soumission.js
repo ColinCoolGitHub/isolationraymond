@@ -1,4 +1,5 @@
-const RECIPIENT = 'j.raymond@ijraymond.com';
+// Temporaire, le temps des tests. Remettre j.raymond@ijraymond.com avant la livraison au client.
+const RECIPIENT = 'colingoulethardy@gmail.com';
 const SENDER = 'Site Isolations J. Raymond <soumissions@isolationsjraymond.com>';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
