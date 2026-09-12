@@ -37,8 +37,24 @@ export async function onRequestPost({ request, env }) {
         return json({ error: 'missing_fields' }, 400);
     }
 
-    if (!env.RESEND_API_KEY) {
+    if (!env.RESEND_API_KEY || !env.TURNSTILE_SECRET_KEY) {
         return json({ error: 'not_configured' }, 500);
+    }
+
+    // Without this the endpoint is open to any scripted POST; the honeypot alone
+    // only stops bots that blindly fill every field.
+    const challenge = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            secret: env.TURNSTILE_SECRET_KEY,
+            response: clean(data['cf-turnstile-response'], 2048),
+            remoteip: request.headers.get('CF-Connecting-IP')
+        })
+    }).then(response => response.json()).catch(() => ({ success: false }));
+
+    if (!challenge.success) {
+        return json({ error: 'challenge_failed' }, 403);
     }
 
     const fields = [

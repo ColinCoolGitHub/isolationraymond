@@ -252,6 +252,7 @@ document.getElementById('lightbox').addEventListener('click', e => {
         sending: { fr: "Envoi en cours...", en: "Sending..." },
         ok: { fr: "Merci, votre demande est envoyée. Nous vous revenons rapidement.", en: "Thank you, your request has been sent. We will get back to you shortly." },
         invalid: { fr: "Veuillez remplir les champs obligatoires.", en: "Please fill in the required fields." },
+        challenge: { fr: "Veuillez patienter le temps de la vérification de sécurité, puis réessayez.", en: "Please wait for the security check to finish, then try again." },
         error: { fr: "L'envoi a échoué. Écrivez-nous à j.raymond@ijraymond.com ou appelez au 438 873-9548.", en: "Sending failed. Email us at j.raymond@ijraymond.com or call 438 873-9548." }
     };
 
@@ -272,6 +273,13 @@ document.getElementById('lightbox').addEventListener('click', e => {
             return;
         }
 
+        const payload = Object.fromEntries(new FormData(form));
+
+        if (!payload['cf-turnstile-response']) {
+            setStatus('challenge', 'is-error');
+            return;
+        }
+
         submit.disabled = true;
         setStatus('sending', '');
 
@@ -279,7 +287,7 @@ document.getElementById('lightbox').addEventListener('click', e => {
             const response = await fetch('/api/soumission', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(new FormData(form)))
+                body: JSON.stringify(payload)
             });
             if (!response.ok) throw new Error(response.status);
             form.reset();
@@ -287,6 +295,8 @@ document.getElementById('lightbox').addEventListener('click', e => {
         } catch {
             setStatus('error', 'is-error');
         } finally {
+            // Turnstile tokens are single use, and form.reset() leaves the widget untouched.
+            window.turnstile?.reset();
             submit.disabled = false;
         }
     });
