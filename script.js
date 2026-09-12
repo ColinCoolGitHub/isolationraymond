@@ -315,6 +315,22 @@ document.getElementById('lightbox').addEventListener('click', e => {
         status.className = `form-status ${tone}`;
     }
 
+    // type="tel" only hints the mobile keyboard, it validates nothing, so the
+    // digits are counted here. Separators and formatting are left alone.
+    const phone = document.getElementById('qf-tel');
+
+    function validatePhone() {
+        const digits = phone.value.replace(/\D/g, '');
+        const valid = digits.length === 10 || (digits.length === 11 && digits.startsWith('1'));
+
+        phone.setCustomValidity(!phone.value || valid ? '' : (currentLang === 'fr'
+            ? "Entrez un numéro de téléphone valide, par exemple 438 873-9548."
+            : 'Enter a valid phone number, for example 438 873-9548.'));
+    }
+
+    phone.addEventListener('input', validatePhone);
+    phone.addEventListener('blur', validatePhone);
+
     form.addEventListener('submit', async event => {
         event.preventDefault();
 

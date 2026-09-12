@@ -33,7 +33,11 @@ export async function onRequestPost({ request, env }) {
     const type = clean(data.type, 60);
     const message = clean(data.message, 4000);
 
-    if (!nom || !message || !EMAIL_PATTERN.test(courriel)) {
+    // Browser validation is only a convenience, a direct POST bypasses it.
+    const phoneDigits = telephone.replace(/\D/g, '');
+    const phoneValid = phoneDigits.length === 10 || (phoneDigits.length === 11 && phoneDigits.startsWith('1'));
+
+    if (!nom || !message || !EMAIL_PATTERN.test(courriel) || !phoneValid) {
         return json({ error: 'missing_fields' }, 400);
     }
 
