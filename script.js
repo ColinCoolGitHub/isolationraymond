@@ -26,6 +26,7 @@ function applyLanguage() {
 // language is fixed at render time, so following the site's toggle means
 // tearing it down and building it again.
 let turnstileWidgetId = null;
+let settleChallenge = null;
 
 function renderTurnstile() {
     const host = document.getElementById('turnstileWidget');
@@ -33,14 +34,37 @@ function renderTurnstile() {
 
     if (turnstileWidgetId !== null) turnstile.remove(turnstileWidgetId);
 
-    // interaction-only keeps the challenge invisible unless Cloudflare decides
-    // the visit warrants one. Automated browsers are always challenged, so this
-    // mode can only be confirmed by a real person in a real browser.
+    // The challenge runs on submit, not on load. A token lives five minutes and
+    // can only be spent once, so one minted when the page opened is routinely
+    // stale by the time a visitor has finished describing their project.
     turnstileWidgetId = turnstile.render(host, {
         sitekey: '0x4AAAAAAEw2qH30TsJA353V',
         theme: 'light',
         language: currentLang,
-        appearance: 'interaction-only'
+        appearance: 'interaction-only',
+        execution: 'execute',
+        callback: token => settleChallenge?.(token),
+        'error-callback': () => settleChallenge?.(null),
+        'expired-callback': () => settleChallenge?.(null)
+    });
+}
+
+// Resolves with a token the visitor has just earned, or null if the challenge
+// errored or was abandoned.
+function freshChallengeToken() {
+    if (turnstileWidgetId === null) return Promise.resolve(null);
+
+    return new Promise(resolve => {
+        const finish = token => {
+            clearTimeout(timer);
+            settleChallenge = null;
+            resolve(token);
+        };
+        const timer = setTimeout(() => finish(null), 45000);
+
+        settleChallenge = finish;
+        turnstile.reset(turnstileWidgetId);
+        turnstile.execute(turnstileWidgetId);
     });
 }
 
@@ -279,7 +303,7 @@ document.getElementById('lightbox').addEventListener('click', e => {
         sending: { fr: "Envoi en cours...", en: "Sending..." },
         ok: { fr: "Merci, votre demande est envoyée. Nous vous revenons rapidement.", en: "Thank you, your request has been sent. We will get back to you shortly." },
         invalid: { fr: "Veuillez remplir les champs obligatoires.", en: "Please fill in the required fields." },
-        challenge: { fr: "Veuillez patienter le temps de la vérification de sécurité, puis réessayez.", en: "Please wait for the security check to finish, then try again." },
+        challenge: { fr: "La vérification de sécurité n'a pas abouti. Veuillez réessayer.", en: "The security check did not complete. Please try again." },
         error: { fr: "L'envoi a échoué. Écrivez-nous à j.raymond@ijraymond.com ou appelez au 438 873-9548.", en: "Sending failed. Email us at j.raymond@ijraymond.com or call 438 873-9548." }
     };
 
@@ -300,15 +324,19 @@ document.getElementById('lightbox').addEventListener('click', e => {
             return;
         }
 
-        const payload = Object.fromEntries(new FormData(form));
+        submit.disabled = true;
+        setStatus('sending', '');
 
-        if (!payload['cf-turnstile-response']) {
+        const token = await freshChallengeToken();
+
+        if (!token) {
             setStatus('challenge', 'is-error');
+            submit.disabled = false;
             return;
         }
 
-        submit.disabled = true;
-        setStatus('sending', '');
+        const payload = Object.fromEntries(new FormData(form));
+        payload['cf-turnstile-response'] = token;
 
         try {
             const response = await fetch('/api/soumission', {
