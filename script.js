@@ -17,7 +17,31 @@ function applyLanguage() {
         const text = el.getAttribute(`data-${currentLang}`);
         if (text) el.innerHTML = text;
     });
+
+    renderTurnstile();
 }
+
+// ===== TURNSTILE =====
+// Rendered explicitly rather than through data attributes: the widget's own
+// language is fixed at render time, so following the site's toggle means
+// tearing it down and building it again.
+let turnstileWidgetId = null;
+
+function renderTurnstile() {
+    const host = document.getElementById('turnstileWidget');
+    if (!host || typeof turnstile === 'undefined') return;
+
+    if (turnstileWidgetId !== null) turnstile.remove(turnstileWidgetId);
+
+    turnstileWidgetId = turnstile.render(host, {
+        sitekey: '0x4AAAAAAEw2qH30TsJA353V',
+        theme: 'light',
+        language: currentLang,
+        appearance: 'interaction-only'
+    });
+}
+
+window.onTurnstileLoad = renderTurnstile;
 
 function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'fr' : 'en';

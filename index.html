@@ -64,7 +64,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&amp;onload=onTurnstileLoad" defer></script>
 </head>
 <body>
     <!-- Header -->
@@ -512,7 +512,7 @@
                         <label for="qf-site">Site web</label>
                         <input type="text" id="qf-site" name="site" tabindex="-1" autocomplete="off">
                     </div>
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAEw2qH30TsJA353V"></div>
+                    <div id="turnstileWidget"></div>
                     <button type="submit" class="btn btn-solid btn-lg" id="quoteSubmit" data-en="Send my request" data-fr="Envoyer ma demande">Envoyer ma demande</button>
                     <p class="form-status" id="quoteStatus" role="status" aria-live="polite"></p>
                 </form>

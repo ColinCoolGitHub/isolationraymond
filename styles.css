@@ -1077,8 +1077,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     overflow: hidden;
 }
 
-/* Reserve the widget height so the button does not jump when the iframe loads */
-.cf-turnstile { min-height: 65px; }
+/* Collapses to nothing while the challenge stays invisible, which is the usual case */
+#turnstileWidget:empty { display: none; }
 
 .quote-form button { justify-self: start; }
 
