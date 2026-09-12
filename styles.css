@@ -850,7 +850,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     position: absolute;
     inset: auto 0 0 0;
     padding: 20px;
-    background: linear-gradient(180deg, transparent 0%, rgba(8, 11, 14, 0.92) 55%);
+    /* The city sits at the very top of this block, where the old gradient was
+       still almost transparent. Darkening it earlier keeps the accent colour
+       readable over pale photos instead of recolouring the text. */
+    background: linear-gradient(180deg, transparent 0%, rgba(8, 11, 14, 0.55) 30%, rgba(8, 11, 14, 0.95) 70%);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -866,6 +869,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--accent);
+    /* Second line of defence for the brightest photos, where the scrim alone
+       still leaves cyan short of a comfortable contrast ratio. */
+    text-shadow: 0 1px 3px rgba(8, 11, 14, 0.9);
 }
 
 .project-info h3 {
