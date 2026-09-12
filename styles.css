@@ -344,6 +344,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     position: relative;
     z-index: 2;
     padding-bottom: 64px;
+    /* Centres the copy in the space left above the strip. Collapses by itself
+       once the content is tall enough to fill the viewport. */
+    margin-block: auto;
 }
 
 .hero-kicker {
