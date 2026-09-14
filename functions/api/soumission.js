@@ -1,5 +1,5 @@
-// Temporaire, le temps des tests. Remettre j.raymond@ijraymond.com avant la livraison au client.
-const RECIPIENT = 'colingoulethardy@gmail.com';
+// Demandes des clients. Les alertes techniques ont leur propre adresse dans resend-webhook.js.
+const RECIPIENT = 'administration@ijraymond.com';
 const SENDER = 'Site Isolations J. Raymond <soumissions@isolationsjraymond.com>';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
